@@ -1,9 +1,30 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { config as loadDotenv } from "dotenv";
+import { existsSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import pg from "pg";
 import { z } from "zod";
 
 const { Pool } = pg;
+const currentDir = dirname(fileURLToPath(import.meta.url));
+
+function loadEnvFiles() {
+  const candidates = [
+    resolve(currentDir, ".env"),
+    resolve(process.cwd(), ".env")
+  ];
+
+  for (const envPath of candidates) {
+    if (existsSync(envPath)) {
+      loadDotenv({ path: envPath });
+      return;
+    }
+  }
+}
+
+loadEnvFiles();
 
 function requireEnv(name: string): string {
   const value = process.env[name];
