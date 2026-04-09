@@ -34,6 +34,11 @@ function requireEnv(name: string): string {
   return value;
 }
 
+function optionalEnv(name: string): string | undefined {
+  const value = process.env[name]?.trim();
+  return value ? value : undefined;
+}
+
 function isReadOnlySql(sql: string): boolean {
   const normalized = sql.trim().toLowerCase();
   return normalized.startsWith("select") || normalized.startsWith("with");
@@ -44,12 +49,20 @@ function hasLimitClause(sql: string): boolean {
 }
 
 function buildPool() {
+  const schema = optionalEnv("PGSCHEMA");
+  if (schema && !/^[A-Za-z_][A-Za-z0-9_]*$/.test(schema)) {
+    throw new Error(
+      "Invalid PGSCHEMA value. Only letters, digits and underscores are allowed, and it cannot start with a digit."
+    );
+  }
+
   return new Pool({
     host: requireEnv("PGHOST"),
     port: Number(process.env.PGPORT ?? 5432),
     user: requireEnv("PGUSER"),
     password: requireEnv("PGPASSWORD"),
     database: requireEnv("PGDATABASE"),
+    options: schema ? `-c search_path=${schema}` : undefined,
     ssl:
       process.env.PGSSL === "true"
         ? { rejectUnauthorized: false }

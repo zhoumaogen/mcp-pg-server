@@ -30,6 +30,7 @@ PGPORT=5432
 PGUSER=readonly_user
 PGPASSWORD=change_me
 PGDATABASE=postgres
+PGSCHEMA=public
 PGSSL=false
 ```
 
@@ -69,6 +70,7 @@ Use query_pg to list the latest 10 users.
         "PGUSER": "readonly_user",
         "PGPASSWORD": "change_me",
         "PGDATABASE": "postgres",
+        "PGSCHEMA": "public",
         "PGSSL": "false"
       }
     }
